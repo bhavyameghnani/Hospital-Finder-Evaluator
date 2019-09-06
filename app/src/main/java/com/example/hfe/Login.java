@@ -37,6 +37,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         bt1 = findViewById(R.id.btn_login);
         bt2 = findViewById(R.id.btn_signup);
 
+        bt1.setOnClickListener(this);
+        bt2.setOnClickListener(this);
+
+
         mauth = FirebaseAuth.getInstance();
     }
 
@@ -85,7 +89,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                     });
         }
         if(view== bt2){
-            startActivity(new Intent(Login.this, MainActivity.class));
+            startActivity(new Intent(Login.this, Signup.class));
         }
     }
 }
