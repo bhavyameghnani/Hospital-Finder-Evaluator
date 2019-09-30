@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,77 +20,81 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class Login extends AppCompatActivity implements View.OnClickListener{
+public class Login extends AppCompatActivity {
 
-    private FirebaseAuth mauth;
-    ProgressDialog loginProgress;
-    EditText et1,et2;
-    Button bt1,bt2;
+    public EditText loginEmailId, logInpasswd;
+    Button btnLogIn;
+    TextView signup;
+    FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        et1 = findViewById(R.id.login_email);
-        et2 = findViewById(R.id.login_password);
+        getSupportActionBar().hide(); // hide the title bar
 
-        bt1 = findViewById(R.id.btn_login);
-        bt2 = findViewById(R.id.btn_signup);
+        firebaseAuth = FirebaseAuth.getInstance();
+        loginEmailId = findViewById(R.id.loginEmail);
+        logInpasswd = findViewById(R.id.loginpaswd);
+        btnLogIn = findViewById(R.id.btnLogIn);
+        signup = findViewById(R.id.TVSignIn);
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    Toast.makeText(Login.this, "User logged in ", Toast.LENGTH_SHORT).show();
+                    Intent I = new Intent(Login.this, Home.class);
+                    startActivity(I);
+                } else {
+                    Toast.makeText(Login.this, "Login to continue", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        signup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent I = new Intent(Login.this, Signup.class);
+                startActivity(I);
+            }
+        });
+        btnLogIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String userEmail = loginEmailId.getText().toString();
+                String userPaswd = logInpasswd.getText().toString();
+                if (userEmail.isEmpty()) {
+                    loginEmailId.setError("Provide your Email first!");
+                    loginEmailId.requestFocus();
+                } else if (userPaswd.isEmpty()) {
+                    logInpasswd.setError("Enter Password!");
+                    logInpasswd.requestFocus();
+                } else if (userEmail.isEmpty() && userPaswd.isEmpty()) {
+                    Toast.makeText(Login.this, "Fields Empty!", Toast.LENGTH_SHORT).show();
+                } else if (!(userEmail.isEmpty() && userPaswd.isEmpty())) {
+                    firebaseAuth.signInWithEmailAndPassword(userEmail, userPaswd).addOnCompleteListener(Login.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task task) {
+                            if (!task.isSuccessful()) {
+                                Toast.makeText(Login.this, "Not successful", Toast.LENGTH_SHORT).show();
+                            } else {
+                                startActivity(new Intent(Login.this, Home.class));
+                            }
+                        }
+                    });
+                } else {
+                    Toast.makeText(Login.this, "Error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
-        bt1.setOnClickListener(this);
-        bt2.setOnClickListener(this);
-
-
-        mauth = FirebaseAuth.getInstance();
     }
 
     @Override
-    public void onClick(View view) {
-        if(view == bt1){
-            String email = et1.getText().toString().trim();
-            String pass = et2.getText().toString().trim();
-
-            if (TextUtils.isEmpty(email)) {
-                Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (TextUtils.isEmpty(pass)) {
-                Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            loginProgress = ProgressDialog.show(Login.this, null, "Logging in...", true);
-            loginProgress.setCancelable(false);
-
-            mauth.createUserWithEmailAndPassword(email, pass)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                //Log.d(TAG, "createUserWithEmail:success");
-                                FirebaseUser user = mauth.getCurrentUser();
-                                loginProgress.dismiss();
-                                startActivity(new Intent(Login.this, Home.class));
-                                finish();
-
-                                //updateUI(user);
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                //Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                Toast.makeText(Login.this, "Authentication failed.",
-                                        Toast.LENGTH_SHORT).show();
-                                //updateUI(null);
-                            }
-
-                            // ...
-                        }
-                    });
-        }
-        if(view== bt2){
-            startActivity(new Intent(Login.this, Signup.class));
-        }
+    protected void onStart() {
+        super.onStart();
+        firebaseAuth.addAuthStateListener(authStateListener);
     }
 }
