@@ -11,7 +11,7 @@
         android:id="@+id/textView13"
         android:layout_width="228dp"
         android:layout_height="66dp"
-        android:text="HFE !"
+        android:text="HFE !!"
         android:textAlignment="center"
         android:textColor="@color/orange"
         android:textSize="40dp"
