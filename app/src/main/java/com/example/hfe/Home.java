@@ -29,10 +29,10 @@ public class Home extends AppCompatActivity {
                 int xc = 0;
                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
                     Mumbai_Zone mz = dataSnapshot1.getValue(Mumbai_Zone.class);
-//                    Long name = mz.getHID();
-//                    Log.d(TAG, "Value is: " + name.toString() + "\t count : " + xc++);
-                    String name = ((Long)mz.getHID()).toString();
+                    Long name = mz.getHID();
                     Log.d(TAG, "Value is: " + name.toString() + "\t count : " + xc++);
+//                    String name = mz.getHospital_Name();
+//                    Log.d(TAG, "Value is: " + name + "\t count : " + ++xc);
                 }
             }
             @Override
