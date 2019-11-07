@@ -89,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(latLng).title("My Location"));
         mMap.addCircle(new CircleOptions()
                 .center(latLng)
-                .radius(800)
+                .radius(5000)
                 .strokeColor(-65536)
                 .fillColor(0x220000ff)
                 .strokeWidth(5.0f));
@@ -254,6 +254,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 /*Intent intent = new Intent(MapsActivity.this,ZoneView.class);
                 intent.putExtras(bundle);
                 startActivity(intent);*/
+                return false;
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                LatLng ln = marker.getPosition();
+                double latti = ln.latitude;
+                double longgi = ln.longitude;
+                System.out.println("BUNDLEE"+String.valueOf(latti));
+
+                Bundle bundle = new Bundle();
+
+                /*ar3.add(String.valueOf(latti));
+                ar3.add(String.valueOf(longgi));*/
+
+                bundle.putString("LATITUDE",String.valueOf(latti));
+                bundle.putString("LONGITUDE",String.valueOf(longgi));
+
+                Intent intent = new Intent(MapsActivity.this,ZoneView.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
                 return false;
             }
         });
